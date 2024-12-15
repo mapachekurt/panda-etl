@@ -14,5 +14,5 @@ RUN pip install poetry
 ENV PATH="/root/.local/bin:$PATH"
 
 # Install dependencies using Poetry
-COPY pyproject.toml poetry.lock* ./
+COPY backend/pyproject.toml backend/poetry.lock* ./
 RUN poetry install --no-root --no-interaction
