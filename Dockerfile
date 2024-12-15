@@ -1,18 +1,21 @@
-### Backend Stage ###
 FROM continuumio/miniconda3 AS backend
 WORKDIR /app/backend
 
-# Install Conda Environment
-COPY backend/ .
-RUN conda create -n pandaetl python=3.9 -y
+# Step 1: Copy project files
+COPY backend/pyproject.toml backend/poetry.lock ./
 
-# Activate Conda and Install Poetry Using pip
+# Step 2: Set up Conda and Poetry
+RUN conda create -n pandaetl python=3.11 -y
 SHELL ["conda", "run", "-n", "pandaetl", "/bin/bash", "-c"]
-RUN pip install poetry
 
-# Add Poetry's path to ensure it's accessible
+RUN pip install poetry
 ENV PATH="/root/.local/bin:$PATH"
 
-# Install dependencies using Poetry
-COPY backend/pyproject.toml backend/poetry.lock* ./
+# Step 3: Install dependencies with Poetry
 RUN poetry install --no-root --no-interaction
+
+# Copy the backend code
+COPY backend/ /app/backend/
+
+# Run the application
+CMD ["conda", "run", "-n", "pandaetl", "poetry", "run", "uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000"]
